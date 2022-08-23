@@ -21,7 +21,7 @@ func (manager *cronManager) NewCronJob(frequency string, callbackUrl string) *cr
 		resp, err := http.Post(callbackUrl, "text/plain", bytes.NewBuffer([]byte{})) // Webhook
 
 		// if client doen't respond to the webhook call, stop the cronJob
-		if err != nil || resp.StatusCode != http.StatusContinue {
+		if err != nil || resp.StatusCode != http.StatusOK || resp.Header.Get("Continue") != "true" {
 			c.Stop()
 		}
 	})

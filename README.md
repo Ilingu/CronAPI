@@ -24,4 +24,4 @@
 }
 ```
 
-3. **Validate Each Webhooks Request**, the _CronAPI_ will call your `CallbackUrl` with a `POST` request, the `CallbackUrl` must be an **valid** endpoint that should respond to the _CronAPI_ with the following status code: `100`. Which is the http code for `Continue`, meaning that the Cron should continue its execution. If by some reason this is not returned to the _CronAPI_ the Cron execution will **STOP** definitively.
+3. **Validate Each Webhooks Request**, the _CronAPI_ will call your `CallbackUrl` with a `POST` request, the `CallbackUrl` must be an **valid** endpoint that should respond to the _CronAPI_ with the status code: `200` and the Header: `Continue: true`. `Continue` means that the Cron should continue its execution, if by some reason this is not returned to the _CronAPI_ the Cron execution will **STOP** definitively.
