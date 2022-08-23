@@ -17,8 +17,8 @@ func (*Routes) addJob(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	cronJob := cronManager.NewCronJob(body.CronFrequency, body.CallbackUrl)
-	if cronJob == nil {
+	_, err = cronManager.NewCronJob(body.CronFrequency, body.CallbackUrl)
+	if err != nil {
 		WriteResponse(&res, http.StatusInternalServerError, "Failed to summon the CronJob")
 		return
 	}
