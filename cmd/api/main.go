@@ -18,7 +18,7 @@ func main() {
 	routes := &Routes{}
 
 	router.Use(authMiddleware)
-	router.HandleFunc("/addJob", routes.addJob).Methods("POST").Schemes("https")
+	router.HandleFunc("/addJob", routes.addJob).Methods("POST")
 
 	srv := &http.Server{
 		Handler:      router,

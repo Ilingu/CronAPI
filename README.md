@@ -15,7 +15,7 @@
    - Go (to build the api, or you can directly go to the Github's Releases)
    - `SERVER_KEY` **env var** prehashed (For Auth)
    - And/Or an `PORT` **env var** if your not using a serverless provider _(e.g: Heroku, Railway, AWS Thing for Serverless for which I absolutely didn't forgot the name...)_
-2. Sand an POST Req at `https://whatever.whatever/addJob` (from an HTTP**S** host) with
+2. Sand an POST Req at `https://whatever.whatever/addJob` with
 
 ```json
 {
