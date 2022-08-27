@@ -8,35 +8,59 @@ import (
 	"github.com/robfig/cron"
 )
 
-type cronManager struct {
+type CronJob struct {
+	Id         int
+	Identifier string
+	Cron       *cron.Cron
 }
 
-func NewCronManager() *cronManager {
-	return &cronManager{}
-}
+var ActiveCron, lastCronId = map[string]CronJob{}, 0
 
-var totalCron int
+func NewCronJob(frequency string, callbackUrl string) (*CronJob, error) {
+	if activeJob, active := ActiveCron[callbackUrl]; active {
+		return &activeJob, nil
+	}
 
-func (manager *cronManager) NewCronJob(frequency string, callbackUrl string) (*cron.Cron, error) {
 	var c = cron.New()
-	cronId := totalCron + 1
-
 	err := c.AddFunc(frequency, func() {
 		resp, err := http.Post(callbackUrl, "text/plain", bytes.NewBuffer([]byte{})) // Webhook
 
 		// if client doen't respond to the webhook call, stop the cronJob
 		if err != nil || resp.StatusCode != http.StatusOK || resp.Header.Get("Continue") != "true" {
-			c.Stop()
-			totalCron--
-			log.Printf("[LOG]: Cron #%d Stopped\n", cronId)
+			DeleteCronJob(callbackUrl)
 		}
 	})
+
 	if err != nil {
 		return nil, err
 	}
-	c.Start()
 
-	totalCron++
-	log.Printf("[LOG]: Cron #%d Started\n", cronId)
-	return c, nil
+	cronInstance := CronJob{Id: lastCronId + 1, Identifier: callbackUrl, Cron: c}
+	cronInstance.StartCron()
+	return &cronInstance, nil
+}
+
+func DeleteCronJob(callbackUrl string) bool {
+	activeJob, active := ActiveCron[callbackUrl]
+	if !active || activeJob == (CronJob{}) {
+		return false
+	}
+
+	activeJob.StopCron()
+	return true
+}
+
+func (c CronJob) StartCron() {
+	c.Cron.Start()
+	ActiveCron[c.Identifier] = c
+	lastCronId = c.Id
+
+	log.Printf("[LOG]: Cron #%d Started\n", c.Id)
+}
+func (c CronJob) StopCron() {
+	c.Cron.Stop()
+	delete(ActiveCron, c.Identifier)
+	lastCronId--
+
+	log.Printf("[LOG]: Cron #%d Stopped\n", c.Id)
 }

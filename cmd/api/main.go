@@ -19,6 +19,7 @@ func main() {
 
 	router.Use(authMiddleware)
 	router.HandleFunc("/addJob", routes.addJob).Methods("POST")
+	router.HandleFunc("/delJob", routes.delJob).Methods("DELETE")
 
 	srv := &http.Server{
 		Handler:      router,
@@ -27,7 +28,7 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Printf("🌐 Server Live at %s\n", srv.Addr)
+	log.Printf("🌐 Server Live on PORT %s\n", srv.Addr)
 	log.Fatal(srv.ListenAndServe())
 }
 
