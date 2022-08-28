@@ -55,12 +55,11 @@ func (c CronJob) StartCron() {
 	ActiveCron[c.Identifier] = c
 	lastCronId = c.Id
 
-	log.Printf("[LOG]: Cron #%d Started\n", c.Id)
+	log.Printf("[LOG]: Cron #%d Started. ID: %s\n", c.Id, c.Identifier)
 }
 func (c CronJob) StopCron() {
 	c.Cron.Stop()
 	delete(ActiveCron, c.Identifier)
-	lastCronId--
 
-	log.Printf("[LOG]: Cron #%d Stopped\n", c.Id)
+	log.Printf("[LOG]: Cron #%d Stopped. ID: %s\n", c.Id, c.Identifier)
 }
