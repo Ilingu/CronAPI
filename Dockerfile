@@ -11,8 +11,7 @@ WORKDIR /app
 
 # Set prod config env variables
 ENV APP_MODE=prod \
-    PORT=3001 \
-    SERVER_KEY=e644a56c330b281dc88d4c354986f2b72e1358b779eccb3da869b7f0060440db
+    PORT=3001
 
 # go build will build an executable file named server in the current directory
 RUN go build -o ./cronApi ./cmd/api

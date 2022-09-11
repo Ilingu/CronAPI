@@ -1,9 +1,9 @@
 package cron
 
 import (
-	"bytes"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/robfig/cron"
 )
@@ -16,6 +16,20 @@ type CronJob struct {
 
 var ActiveCron, lastCronId = map[string]CronJob{}, 0
 
+func DispatchCron(callbackUrl string) {
+	req, err := http.NewRequest("POST", callbackUrl, nil)
+	if err != nil {
+		DeleteCronJob(callbackUrl)
+		return
+	}
+	req.Header.Set("Authorization", os.Getenv("CLIENT_TRUST_KEY"))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil || resp.StatusCode != http.StatusOK || resp.Header.Get("Continue") != "true" {
+		DeleteCronJob(callbackUrl) // if client doen't respond to the webhook call, stop the cronJob
+	}
+}
+
 func NewCronJob(frequency string, callbackUrl string) (*CronJob, error) {
 	if activeJob, active := ActiveCron[callbackUrl]; active {
 		return &activeJob, nil
@@ -23,12 +37,7 @@ func NewCronJob(frequency string, callbackUrl string) (*CronJob, error) {
 
 	var c = cron.New()
 	err := c.AddFunc(frequency, func() {
-		resp, err := http.Post(callbackUrl, "text/plain", bytes.NewBuffer([]byte{})) // Webhook
-
-		// if client doen't respond to the webhook call, stop the cronJob
-		if err != nil || resp.StatusCode != http.StatusOK || resp.Header.Get("Continue") != "true" {
-			DeleteCronJob(callbackUrl)
-		}
+		DispatchCron(callbackUrl) // Call webhook
 	})
 
 	if err != nil {
